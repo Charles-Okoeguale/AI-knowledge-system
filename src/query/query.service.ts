@@ -1,20 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Document } from '../documents/schemas/document.schema';
 
 @Injectable()
 export class QueryService {
-  private readonly openAi: OpenAIApi;
+  private readonly openAi: OpenAI;
 
   constructor(
     @InjectModel(Document.name) private documentModel: Model<Document>,
   ) {
-    const configuration = new Configuration({
+    this.openAi = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-    this.openAi = new OpenAIApi(configuration);
   }
 
   async processQuery(query: string): Promise<string> {
@@ -47,22 +46,28 @@ export class QueryService {
     Question: ${query}\nAnswer:`;
 
     try {
-      const response = await this.openAi.createCompletion({
-        model: 'gpt-3.5-turbo',
-        prompt,
+      const response = await this.openAi.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{
+          role: 'user',
+          content: prompt
+        }],
         max_tokens: 1000,
         temperature: 0.5,
       });
 
-      if (!response.data.choices || response.data.choices.length === 0) {
-        throw new Error('No choices returned from OpenAI API');
+      if (!response.choices?.[0]?.message?.content) {
+        throw new Error('No valid response content from OpenAI');
       }
 
-      const choiceText = response.data.choices[0].text?.trim() || 'No response available';
-      return choiceText;
+      return response.choices[0].message.content.trim();
     } catch (apiError) {
-      console.error('OpenAI API error:', apiError);
-      throw new Error('Failed to process query with OpenAI API.');
+      console.error('OpenAI API error details:', {
+        code: apiError.code,
+        status: apiError.status,
+        message: apiError.message
+      });
+      throw new Error(`OpenAI API error: ${apiError.message}`);
     }
   }
 }

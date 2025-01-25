@@ -51,6 +51,7 @@ export class QueryService {
     }
 
     let relevantDocs;
+    console.log(query, "query")
 
     try {
       relevantDocs = await this.documentModel

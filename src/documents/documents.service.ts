@@ -5,31 +5,36 @@ import { Document } from './schemas/document.schema';
 import { v4 as uuidv4 } from 'uuid';
 import { Readable } from 'stream';
 import * as pdfParse from 'pdf-parse';
+import { InsightsService } from '../insights/insights.service';
 
 @Injectable()
 export class DocumentsService {
+  private readonly insightsService: InsightsService; 
+
   constructor(
     @InjectModel(Document.name) private documentModel: Model<Document>,
-  ) {}
+    insightsService: InsightsService, 
+  ) {
+    this.insightsService = insightsService;
+  }
 
   async createDocument(file: Express.Multer.File, metadata: any): Promise<Document> {
     try {
       const content = await this.extractText(file);
-      console.log(content, "content of the file");
+      const { _id, ...cleanMetadata } = metadata;
       
       const newDocument = new this.documentModel({
-        id: uuidv4(),
         filename: file.originalname,
         contentType: file.mimetype,
         size: file.size,
         content,
-        metadata,
+        metadata: cleanMetadata,
         createdAt: new Date(),
       });
-      
-      console.log(newDocument, 'newDocument');
 
-      return newDocument.save();
+      const savedDocument = await newDocument.save(); 
+      await this.insightsService.generateInsights(savedDocument.id);
+      return savedDocument; 
     } catch (error) {
       console.error('Error creating document:', error);
       throw new Error('Failed to create document');

@@ -16,15 +16,45 @@ export class QueryService {
     });
   }
 
-  async processQuery(query: string): Promise<string> {
+  async processQuery(
+    query: string,
+    filters?: {
+      dateRange?: { start: Date; end: Date };
+      categories?: string[];
+      author?: string;
+    }
+  ): Promise<string> {
     if (!query || typeof query !== 'string') {
       throw new Error('Invalid query: Query must be a non-empty string.');
     }
 
+    const filterConditions: Record<string, any> = {};
+
+    if (filters?.dateRange) {
+      if (!(filters.dateRange.start instanceof Date) || !(filters.dateRange.end instanceof Date)) {
+        throw new Error('Invalid date range format. Use ISO date strings.');
+      }
+      filterConditions['createdAt'] = {
+        $gte: filters.dateRange.start,
+        $lte: filters.dateRange.end
+      };
+    }
+
+    if (filters?.categories?.length) {
+      filterConditions['metadata.category'] = {
+        $in: filters.categories
+      };
+    }
+  
+    if (filters?.author) {
+      filterConditions['metadata.author'] = filters.author;
+    }
+
     let relevantDocs;
+
     try {
       relevantDocs = await this.documentModel
-        .find({ $text: { $search: query } }, { score: { $meta: 'textScore' } })
+        .find({ $text: { $search: query }, ...filterConditions }, { score: { $meta: 'textScore' } })
         .sort({ score: { $meta: 'textScore' } })
         .limit(3)
         .exec();
@@ -38,8 +68,12 @@ export class QueryService {
     }
 
     const context = relevantDocs
-      .map(doc => `Document: ${doc.filename}\nContent: ${doc.content.substring(0, 1000)}...`)
-      .join('\n\n');
+    .map(doc => 
+      `Document: ${doc.filename}\n` +
+      `Content: ${doc.content.substring(0, 500)}...\n` +
+      `Insights: ${doc.insights || "No insights available"}` 
+    )
+    .join('\n\n');
 
     const prompt = `Based on the following context, answer the question:\n\n
     Context:\n${context}\n\n

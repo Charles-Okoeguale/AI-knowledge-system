@@ -26,7 +26,6 @@ export class InsightsService {
     if (!document) {
       throw new Error('Document not found');
     }
-
    
     const prompt = `Summarize this document and extract key insights:\n\n${document.content.substring(0, 3000)}`;
 
@@ -46,11 +45,10 @@ export class InsightsService {
 
       
       const insights = response.choices?.[0]?.message?.content?.trim();
+
       if (insights) {
-        
         document.insights = insights;
         await document.save();
-
         return insights;
       } else {
         throw new Error('Failed to generate insights: No content returned');

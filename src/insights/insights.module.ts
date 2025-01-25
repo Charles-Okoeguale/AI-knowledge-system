@@ -10,5 +10,6 @@ import { Document, DocumentSchema } from '../documents/schemas/document.schema';
   ],
   controllers: [InsightsController],
   providers: [InsightsService],
+  exports: [InsightsService],
 })
 export class InsightsModule {}

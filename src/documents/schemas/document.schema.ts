@@ -3,10 +3,8 @@ import { Document as MongoDocument } from 'mongoose';
 
 @Schema()
 export class Document extends MongoDocument {
-  @Prop({ required: true, unique: true })
-  id: string;
 
-  @Prop({ unique: true, required: true })
+  @Prop({ required: true })
   filename: string;
 
   @Prop({ required: true })
@@ -21,8 +19,8 @@ export class Document extends MongoDocument {
   @Prop({ type: Object })
   metadata: Record<string, any>;
 
-  @Prop()
-  insights: string;
+  @Prop({ type: String }) 
+  insights: string; 
 
   @Prop({ default: Date.now })
   createdAt: Date;

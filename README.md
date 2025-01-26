@@ -4,7 +4,7 @@ To get started with the project, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone [text](https://github.com/Charles-Okoeguale/knowledge-system.git)
+   git clone https://github.com/Charles-Okoeguale/knowledge-system.git
    cd your-repo-name
    ```
 

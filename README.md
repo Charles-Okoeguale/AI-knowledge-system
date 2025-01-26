@@ -30,6 +30,17 @@ To get started with the project, follow these steps:
      npm run start:prod
      ```
 
+## Running with Docker
+
+To run the application using Docker, follow these steps:
+
+1. Build and run the application using Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
+
+2. Access the application at `http://localhost:3000`.
+
 ## Explanation of Architectural Choice
 
 This project is built using the NestJS framework, which is a progressive Node.js framework for building efficient and scalable server-side applications. The architecture follows the modular design pattern, allowing for better organization of code and separation of concerns. Key architectural choices include:
@@ -37,6 +48,7 @@ This project is built using the NestJS framework, which is a progressive Node.js
 - **Modularity**: Each feature is encapsulated in its own module, making it easier to manage and scale the application.
 - **Dependency Injection**: Leveraging NestJS's built-in dependency injection system to manage service instances and promote loose coupling.
 - **MongoDB**: Using MongoDB as the database for its flexibility and scalability, especially for handling document-based data.
+- **Monolithic Architecture**: The decision to use a monolithic architecture was made to simplify the development and deployment process. This approach allows for easier management of the codebase, as all components are contained within a single application. It also reduces the complexity of inter-service communication, which can be beneficial for smaller teams or projects in the early stages of development. As the application grows, this architecture can be refactored into microservices if needed.
 
 ## API Documentation
 

@@ -18,6 +18,7 @@ export class DocumentsService {
     this.insightsService = insightsService;
   }
 
+  // this method is responsible for handling the creation of a new document.
   async createDocument(file: Express.Multer.File, metadata: any): Promise<Document> {
     try {
       const content = await this.extractText(file);
@@ -41,6 +42,7 @@ export class DocumentsService {
     }
   }
 
+  // this method is responsible for extracting the content of the document
   private async extractText(file: Express.Multer.File): Promise<string> {
     try {
       if (file.mimetype === 'application/pdf') {

@@ -20,6 +20,7 @@ export class InsightsService {
     });
   }
 
+  // this is responsible for generating insights about a document and storing it.
   async generateInsights(documentId: string): Promise<any> {
    
     const document = await this.documentModel.findById(documentId);

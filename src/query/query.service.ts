@@ -16,6 +16,7 @@ export class QueryService {
     });
   }
 
+  // this is responsible for processing the query passed in as a request
   async processQuery(
     query: string,
     filters?: {

@@ -39,7 +39,7 @@ class QueryDto {
 export class QueryController {
   constructor(private readonly queryService: QueryService) {}
 
-  @Post()
+  @Post() // query endpoint
   async processQuery(@Body() queryDto: QueryDto): Promise<string> {
     const filters = queryDto.filters ? {
       ...queryDto.filters,

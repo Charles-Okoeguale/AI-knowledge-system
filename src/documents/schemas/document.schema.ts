@@ -13,18 +13,21 @@ export class Document extends MongoDocument {
   @Prop({ required: true })
   size: number;
 
-  @Prop({ required: true })
-  content: string;
-
   @Prop({ type: Object })
   metadata: Record<string, any>;
 
   @Prop({ type: String }) 
   insights: string; 
 
+  @Prop({ type: [String], default: [] })
+  chunks: string[];
+
+  @Prop({ default: 0 })
+  totalChunks: number;
+
   @Prop({ default: Date.now })
   createdAt: Date;
 }
 
 export const DocumentSchema = SchemaFactory.createForClass(Document);
-DocumentSchema.index({ content: 'text', insights: 'text' });
+DocumentSchema.index({ filename: 'text' });

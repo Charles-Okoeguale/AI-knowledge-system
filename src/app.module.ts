@@ -4,14 +4,14 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DocumentsModule } from './documents/documents.module';
 import { QueryModule } from './query/query.module';
-import { InsightsModule } from './insights/insights.module';
+import { VectorModule } from './vector/vector.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGODB_URI || ''),
     DocumentsModule ,
     QueryModule,
-    InsightsModule,
+    VectorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

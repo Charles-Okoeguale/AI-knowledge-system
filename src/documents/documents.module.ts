@@ -3,14 +3,17 @@ import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Document, DocumentSchema } from './schemas/document.schema';
-import { InsightsModule } from '../insights/insights.module';
+import { Chunk, ChunkSchema } from './schemas/chunk.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Document.name, schema: DocumentSchema }]),
-    InsightsModule,
+    MongooseModule.forFeature([
+      { name: Document.name, schema: DocumentSchema },
+      { name: Chunk.name, schema: ChunkSchema }
+    ]),
   ],
   controllers: [DocumentsController],
   providers: [DocumentsService],
+  exports: [DocumentsService],
 })
 export class DocumentsModule {}

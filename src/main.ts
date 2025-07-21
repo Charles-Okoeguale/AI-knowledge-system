@@ -4,11 +4,16 @@ import * as dotenv from 'dotenv';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-   dotenv.config()
+  dotenv.config()
 
-   if (!process.env.OPENAI_API_KEY || !process.env.MONGODB_URI) {
-     throw new Error('Missing required environment variables: OPENAI_API_KEY or MONGODB_URI');
-   }
+  if (!process.env.OPENAI_API_KEY || !process.env.MONGODB_URI || !process.env.PINECONE_API_KEY || !process.env.PINECONE_INDEX_NAME) {
+    throw new Error('Missing required environment variables: OPENAI_API_KEY, MONGODB_URI, PINECONE_API_KEY, or PINECONE_INDEX_NAME');
+  }
+
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    credentials: true,
+  });
 
   await app.listen(3000);
 }

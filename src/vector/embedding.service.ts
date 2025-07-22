@@ -14,9 +14,10 @@ export class EmbeddingService {
   async generateEmbedding(text: string): Promise<number[]> {
     try {
       const response = await this.openai.embeddings.create({
-        model: 'text-embedding-3-small',
+        model: 'text-embedding-3-large',
         input: text,
         encoding_format: 'float',
+        dimensions: 1024,
       });
 
       return response.data[0].embedding;
@@ -29,9 +30,10 @@ export class EmbeddingService {
   async generateEmbeddings(texts: string[]): Promise<number[][]> {
     try {
       const response = await this.openai.embeddings.create({
-        model: 'text-embedding-3-small',
+        model: 'text-embedding-3-large',
         input: texts,
         encoding_format: 'float',
+        dimensions: 1024,
       });
 
       return response.data.map(item => item.embedding);

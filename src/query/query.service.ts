@@ -62,11 +62,97 @@ export class QueryService {
         return 'No relevant information found for your query. Please try rephrasing your question.';
       }
 
-      return `Found ${searchResponse.matches.length} similar vectors. Ready for context assembly.`;
+      const context = this.assembleContext(searchResponse.matches);
+      console.log('Assembled context:', context);
+
+      const aiResponse = await this.generateAIResponse(context, query);
+      console.log('AI Response:', aiResponse);
+
+      return aiResponse;
       
     } catch (error) {
       console.error('Query processing error:', error);
       throw new Error(`Query processing failed: ${error.message}`);
+    }
+  }
+
+  private async generateAIResponse(context: string, question: string): Promise<string> {
+    try {
+      const prompt = this.buildRAGPrompt(context, question);
+
+      const response = await this.openAi.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful assistant that answers questions based on the provided context. Only use information from the context to answer questions. If the information is not in the context, say "I don\'t have enough information to answer that." Be specific and cite details from the context when possible.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.3,
+      });
+
+      if (!response.choices?.[0]?.message?.content) {
+        throw new Error('No valid response content from OpenAI');
+      }
+
+      return response.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Error generating AI response:', error);
+      throw new Error('Failed to generate AI response');
+    }
+  }
+
+  private buildRAGPrompt(context: string, question: string): string {
+    return `Based on the following context, answer the question:
+    Context:
+    ${context}
+
+    Question: ${question}
+
+    Answer:`;
+      }
+
+  private assembleContext(matches: any[]): string {
+    try {
+      // Extract text content from matches
+      const chunks = matches.map(match => ({
+        text: match.metadata.text,
+        score: match.score,
+        documentId: match.metadata.documentId,
+        chunkIndex: match.metadata.chunkIndex,
+        filename: match.metadata.filename
+      }));
+
+      // Sort by relevance score (highest first)
+      chunks.sort((a, b) => b.score - a.score);
+
+      // Remove duplicates based on text content
+      const uniqueChunks = chunks.filter((chunk, index, self) => 
+        index === self.findIndex(c => c.text === chunk.text)
+      );
+
+      // Combine chunks into context
+      const context = uniqueChunks
+        .map(chunk => 
+          `[Document: ${chunk.filename}, Chunk: ${chunk.chunkIndex}]\n${chunk.text}`
+        )
+        .join('\n\n');
+
+      // Limit context size (approximately 4K tokens = ~16K characters)
+      const maxContextLength = 16000;
+      if (context.length > maxContextLength) {
+        return context.substring(0, maxContextLength) + '...';
+      }
+
+      return context;
+    } catch (error) {
+      console.error('Error assembling context:', error);
+      throw new Error('Failed to assemble context from retrieved chunks');
     }
   }
 }

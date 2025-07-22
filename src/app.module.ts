@@ -8,7 +8,7 @@ import { VectorModule } from './vector/vector.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGODB_URI || ''),
+    MongooseModule.forRoot('mongodb+srv://masterofwar014:14032001Birth@xxxx-database.xt8zh0z.mongodb.net/?retryWrites=true&w=majority&appName=xxxx-database'),
     DocumentsModule ,
     QueryModule,
     VectorModule,
